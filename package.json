@@ -1,0 +1,26 @@
+{
+    "name": "mcp-apps-validator",
+    "version": "0.1.0",
+    "description": "Validates MCP servers for UI extension support: connects, discovers ui:// resources, validates HTML, CSP, permissions, display modes, theming, tool linkage, and builds structured snapshots.",
+    "main": "./src/index.mjs",
+    "type": "module",
+    "scripts": {
+        "test": "NODE_OPTIONS='--experimental-vm-modules' npx jest --detectOpenHandles",
+        "test:coverage:src": "NODE_OPTIONS='--experimental-vm-modules' npx jest --detectOpenHandles --coverage --collectCoverageFrom='src/**/*.mjs'",
+        "test:file": "NODE_OPTIONS='--experimental-vm-modules' npx jest --detectOpenHandles"
+    },
+    "keywords": [
+        "mcp",
+        "validator",
+        "mcp-apps",
+        "ui-extension",
+        "sep-1865"
+    ],
+    "license": "MIT",
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.12.1"
+    },
+    "devDependencies": {
+        "jest": "^30.0.5"
+    }
+}
