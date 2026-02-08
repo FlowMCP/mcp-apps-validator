@@ -147,6 +147,7 @@ class SnapshotBuilder {
         }
 
         const uiExt = capabilities['io.modelcontextprotocol/ui']
+            || ( capabilities['experimental'] && capabilities['experimental']['io.modelcontextprotocol/ui'] )
 
         if( !uiExt || typeof uiExt !== 'object' ) {
             return { extensionVersion: null }

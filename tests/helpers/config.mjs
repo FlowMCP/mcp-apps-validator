@@ -109,6 +109,22 @@ const MOCK_CAPABILITIES_WITH_UI = {
     'io.modelcontextprotocol/ui': { version: '2026-01-26' }
 }
 
+const MOCK_CAPABILITIES_WITH_UI_EXPERIMENTAL = {
+    tools: {},
+    resources: {},
+    experimental: {
+        'io.modelcontextprotocol/ui': { version: '2025-03-26', mimeTypes: [ 'text/html;profile=mcp-app' ] }
+    }
+}
+
+const MOCK_CAPABILITIES_WITH_UI_EXPERIMENTAL_NO_VERSION = {
+    tools: {},
+    resources: {},
+    experimental: {
+        'io.modelcontextprotocol/ui': { mimeTypes: [ 'text/html;profile=mcp-app' ] }
+    }
+}
+
 
 // --- UI Resource Content ---
 
@@ -328,6 +344,8 @@ export {
     MOCK_PROMPTS,
     MOCK_CAPABILITIES,
     MOCK_CAPABILITIES_WITH_UI,
+    MOCK_CAPABILITIES_WITH_UI_EXPERIMENTAL,
+    MOCK_CAPABILITIES_WITH_UI_EXPERIMENTAL_NO_VERSION,
     MOCK_VALID_HTML,
     MOCK_INVALID_HTML,
     MOCK_EMPTY_HTML,

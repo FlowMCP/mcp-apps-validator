@@ -4,7 +4,9 @@ import { CapabilityClassifier } from '../../../src/task/CapabilityClassifier.mjs
 
 import {
     MOCK_CAPABILITIES,
-    MOCK_CAPABILITIES_WITH_UI
+    MOCK_CAPABILITIES_WITH_UI,
+    MOCK_CAPABILITIES_WITH_UI_EXPERIMENTAL,
+    MOCK_CAPABILITIES_WITH_UI_EXPERIMENTAL_NO_VERSION
 } from '../../helpers/config.mjs'
 
 
@@ -238,5 +240,55 @@ describe( 'CapabilityClassifier', () => {
         expect( result ).toHaveProperty( 'categories' )
         expect( result ).toHaveProperty( 'messages' )
         expect( Array.isArray( result['messages'] ) ).toBe( true )
+    } )
+
+
+    test( 'detects extension under experimental fallback', () => {
+        const { categories, messages } = CapabilityClassifier.classify( {
+            capabilities: MOCK_CAPABILITIES_WITH_UI_EXPERIMENTAL,
+            uiResources: [],
+            uiLinkedTools: [],
+            validatedResources: []
+        } )
+
+        expect( categories['supportsMcpApps'] ).toBe( true )
+
+        const uiv080 = messages
+            .filter( ( m ) => m.includes( 'UIV-080' ) )
+
+        expect( uiv080 ).toHaveLength( 0 )
+    } )
+
+
+    test( 'extracts extension version from experimental fallback', () => {
+        const { messages } = CapabilityClassifier.classify( {
+            capabilities: MOCK_CAPABILITIES_WITH_UI_EXPERIMENTAL,
+            uiResources: [],
+            uiLinkedTools: [],
+            validatedResources: []
+        } )
+
+        const uiv081 = messages
+            .filter( ( m ) => m.includes( 'UIV-081' ) )
+
+        expect( uiv081 ).toHaveLength( 0 )
+    } )
+
+
+    test( 'returns UIV-081 when experimental extension has no version', () => {
+        const { categories, messages } = CapabilityClassifier.classify( {
+            capabilities: MOCK_CAPABILITIES_WITH_UI_EXPERIMENTAL_NO_VERSION,
+            uiResources: [],
+            uiLinkedTools: [],
+            validatedResources: []
+        } )
+
+        expect( categories['supportsMcpApps'] ).toBe( true )
+
+        const uiv081 = messages
+            .filter( ( m ) => m.includes( 'UIV-081' ) )
+
+        expect( uiv081 ).toHaveLength( 1 )
+        expect( uiv081[0] ).toContain( 'Extension version not specified' )
     } )
 } )

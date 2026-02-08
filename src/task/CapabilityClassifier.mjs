@@ -50,6 +50,7 @@ class CapabilityClassifier {
         }
 
         const uiExt = capabilities['io.modelcontextprotocol/ui']
+            || ( capabilities['experimental'] && capabilities['experimental']['io.modelcontextprotocol/ui'] )
         const detected = uiExt !== undefined && uiExt !== null
 
         return { detected }
@@ -62,6 +63,7 @@ class CapabilityClassifier {
         }
 
         const uiExt = capabilities['io.modelcontextprotocol/ui']
+            || ( capabilities['experimental'] && capabilities['experimental']['io.modelcontextprotocol/ui'] )
 
         if( !uiExt || typeof uiExt !== 'object' ) {
             return { extensionVersion: null }
