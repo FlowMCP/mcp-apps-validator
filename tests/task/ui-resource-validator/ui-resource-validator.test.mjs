@@ -51,7 +51,7 @@ describe( 'UiResourceValidator', () => {
             } )
 
             const htmlErrors = messages
-                .filter( ( m ) => m.includes( 'UIV-010' ) || m.includes( 'UIV-011' ) || m.includes( 'UIV-012' ) )
+                .filter( ( m ) => m.includes( 'UIV-010' ) || m.includes( 'UIV-011' ) || m.includes( 'UIV-012' ) || m.includes( 'UIV-013' ) )
 
             expect( htmlErrors ).toHaveLength( 0 )
             expect( validatedResources ).toHaveLength( 1 )
@@ -115,7 +115,7 @@ describe( 'UiResourceValidator', () => {
         } )
 
 
-        test( 'reports UIV-011 for invalid HTML structure', async () => {
+        test( 'reports UIV-013 for invalid HTML structure', async () => {
             McpAppsConnector['readUiResource'].mockResolvedValue( {
                 status: true,
                 content: MOCK_INVALID_HTML,
@@ -130,7 +130,7 @@ describe( 'UiResourceValidator', () => {
                 timeout: 5000
             } )
 
-            expect( messages ).toContainEqual( expect.stringContaining( 'UIV-011' ) )
+            expect( messages ).toContainEqual( expect.stringContaining( 'UIV-013' ) )
         } )
     } )
 
@@ -427,6 +427,133 @@ describe( 'UiResourceValidator', () => {
                 .filter( ( m ) => m.includes( 'UIV-060' ) || m.includes( 'UIV-061' ) )
 
             expect( linkageErrors ).toHaveLength( 0 )
+        } )
+
+
+        test( 'reports UIV-062 when no tools are linked to UI resources', async () => {
+            McpAppsConnector['readUiResource'].mockResolvedValue( {
+                status: true,
+                content: MOCK_VALID_HTML,
+                mimeType: 'text/html;profile=mcp-app',
+                meta: MOCK_UI_RESOURCE_CONTENT['contents'][0]['_meta']
+            } )
+
+            const { messages } = await UiResourceValidator.validate( {
+                client: {},
+                uiResources: UI_RESOURCES,
+                tools: MOCK_TOOLS_NO_UI,
+                timeout: 5000
+            } )
+
+            expect( messages ).toContainEqual( expect.stringContaining( 'UIV-062' ) )
+        } )
+
+
+        test( 'reports UIV-063 when tool has UI metadata but no resourceUri', async () => {
+            McpAppsConnector['readUiResource'].mockResolvedValue( {
+                status: true,
+                content: MOCK_VALID_HTML,
+                mimeType: 'text/html;profile=mcp-app',
+                meta: MOCK_UI_RESOURCE_CONTENT['contents'][0]['_meta']
+            } )
+
+            const toolsWithUiNoResourceUri = [
+                {
+                    name: 'incomplete_tool',
+                    _meta: {
+                        ui: {
+                            visibility: [ 'app' ]
+                        }
+                    }
+                }
+            ]
+
+            const { messages } = await UiResourceValidator.validate( {
+                client: {},
+                uiResources: UI_RESOURCES,
+                tools: toolsWithUiNoResourceUri,
+                timeout: 5000
+            } )
+
+            expect( messages ).toContainEqual( expect.stringContaining( 'UIV-063' ) )
+            expect( messages ).toContainEqual( expect.stringContaining( 'incomplete_tool' ) )
+        } )
+    } )
+
+
+    describe( 'validate — Display Modes', () => {
+
+        test( 'reports UIV-041 when no displayModes declared in uiMeta', async () => {
+            McpAppsConnector['readUiResource'].mockResolvedValue( {
+                status: true,
+                content: MOCK_VALID_HTML,
+                mimeType: 'text/html;profile=mcp-app',
+                meta: {
+                    ui: {
+                        csp: { connectDomains: [] }
+                    }
+                }
+            } )
+
+            const { messages } = await UiResourceValidator.validate( {
+                client: {},
+                uiResources: UI_RESOURCES,
+                tools: MOCK_TOOLS,
+                timeout: 5000
+            } )
+
+            expect( messages ).toContainEqual( expect.stringContaining( 'UIV-041' ) )
+        } )
+
+
+        test( 'reports UIV-041 when displayModes is empty array', async () => {
+            McpAppsConnector['readUiResource'].mockResolvedValue( {
+                status: true,
+                content: MOCK_VALID_HTML,
+                mimeType: 'text/html;profile=mcp-app',
+                meta: {
+                    ui: {
+                        csp: { connectDomains: [] },
+                        displayModes: []
+                    }
+                }
+            } )
+
+            const { messages } = await UiResourceValidator.validate( {
+                client: {},
+                uiResources: UI_RESOURCES,
+                tools: MOCK_TOOLS,
+                timeout: 5000
+            } )
+
+            expect( messages ).toContainEqual( expect.stringContaining( 'UIV-041' ) )
+        } )
+
+
+        test( 'does not report UIV-041 when displayModes has entries', async () => {
+            McpAppsConnector['readUiResource'].mockResolvedValue( {
+                status: true,
+                content: MOCK_VALID_HTML,
+                mimeType: 'text/html;profile=mcp-app',
+                meta: {
+                    ui: {
+                        csp: { connectDomains: [] },
+                        displayModes: [ 'inline' ]
+                    }
+                }
+            } )
+
+            const { messages } = await UiResourceValidator.validate( {
+                client: {},
+                uiResources: UI_RESOURCES,
+                tools: MOCK_TOOLS,
+                timeout: 5000
+            } )
+
+            const uiv041 = messages
+                .filter( ( m ) => m.includes( 'UIV-041' ) )
+
+            expect( uiv041 ).toHaveLength( 0 )
         } )
     } )
 } )

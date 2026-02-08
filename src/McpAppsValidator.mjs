@@ -77,7 +77,8 @@ class McpAppsValidator {
         const { messages: validateMessages, validatedResources } = await UiResourceValidator.validate( { client, uiResources, tools, timeout } )
         allMessages.push( ...validateMessages )
 
-        const { categories: partialCategories } = CapabilityClassifier.classify( { capabilities, uiResources, uiLinkedTools, validatedResources } )
+        const { categories: partialCategories, messages: classifierMessages } = CapabilityClassifier.classify( { capabilities, uiResources, uiLinkedTools, validatedResources } )
+        allMessages.push( ...classifierMessages )
 
         const { latency } = await McpAppsConnector.measureLatency( { client, uiResources } )
 

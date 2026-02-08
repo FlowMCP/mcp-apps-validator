@@ -43,7 +43,7 @@ const MOCK_VALIDATED_RESOURCES_MINIMAL = [
 describe( 'CapabilityClassifier', () => {
 
     test( 'classifies full capabilities correctly', () => {
-        const { categories } = CapabilityClassifier.classify( {
+        const { categories, messages } = CapabilityClassifier.classify( {
             capabilities: MOCK_CAPABILITIES_WITH_UI,
             uiResources: MOCK_UI_RESOURCES,
             uiLinkedTools: MOCK_UI_LINKED_TOOLS,
@@ -60,11 +60,12 @@ describe( 'CapabilityClassifier', () => {
         expect( categories['hasToolVisibility'] ).toBe( true )
         expect( categories['hasValidPermissions'] ).toBe( true )
         expect( categories['hasGracefulDegradation'] ).toBe( true )
+        expect( messages ).toHaveLength( 0 )
     } )
 
 
     test( 'classifies empty capabilities correctly', () => {
-        const { categories } = CapabilityClassifier.classify( {
+        const { categories, messages } = CapabilityClassifier.classify( {
             capabilities: MOCK_CAPABILITIES,
             uiResources: [],
             uiLinkedTools: [],
@@ -79,6 +80,7 @@ describe( 'CapabilityClassifier', () => {
         expect( categories['supportsTheming'] ).toBe( false )
         expect( categories['supportsDisplayModes'] ).toBe( false )
         expect( categories['hasGracefulDegradation'] ).toBe( false )
+        expect( messages ).toContainEqual( expect.stringContaining( 'UIV-080' ) )
     } )
 
 
@@ -139,5 +141,102 @@ describe( 'CapabilityClassifier', () => {
         } )
 
         expect( Object.keys( categories ).length ).toBe( 10 )
+    } )
+
+
+    test( 'returns UIV-080 when extension is missing', () => {
+        const { messages } = CapabilityClassifier.classify( {
+            capabilities: MOCK_CAPABILITIES,
+            uiResources: [],
+            uiLinkedTools: [],
+            validatedResources: []
+        } )
+
+        const uiv080 = messages
+            .filter( ( m ) => m.includes( 'UIV-080' ) )
+
+        expect( uiv080 ).toHaveLength( 1 )
+        expect( uiv080[0] ).toContain( 'MCP Apps extension not declared' )
+    } )
+
+
+    test( 'does not return UIV-080 when extension is present', () => {
+        const { messages } = CapabilityClassifier.classify( {
+            capabilities: MOCK_CAPABILITIES_WITH_UI,
+            uiResources: [],
+            uiLinkedTools: [],
+            validatedResources: []
+        } )
+
+        const uiv080 = messages
+            .filter( ( m ) => m.includes( 'UIV-080' ) )
+
+        expect( uiv080 ).toHaveLength( 0 )
+    } )
+
+
+    test( 'returns UIV-081 when extension exists but version is missing', () => {
+        const capabilitiesNoVersion = {
+            tools: {},
+            resources: {},
+            'io.modelcontextprotocol/ui': {}
+        }
+
+        const { messages } = CapabilityClassifier.classify( {
+            capabilities: capabilitiesNoVersion,
+            uiResources: [],
+            uiLinkedTools: [],
+            validatedResources: []
+        } )
+
+        const uiv081 = messages
+            .filter( ( m ) => m.includes( 'UIV-081' ) )
+
+        expect( uiv081 ).toHaveLength( 1 )
+        expect( uiv081[0] ).toContain( 'Extension version not specified' )
+    } )
+
+
+    test( 'does not return UIV-081 when extension has version', () => {
+        const { messages } = CapabilityClassifier.classify( {
+            capabilities: MOCK_CAPABILITIES_WITH_UI,
+            uiResources: [],
+            uiLinkedTools: [],
+            validatedResources: []
+        } )
+
+        const uiv081 = messages
+            .filter( ( m ) => m.includes( 'UIV-081' ) )
+
+        expect( uiv081 ).toHaveLength( 0 )
+    } )
+
+
+    test( 'does not return UIV-081 when extension is not present', () => {
+        const { messages } = CapabilityClassifier.classify( {
+            capabilities: MOCK_CAPABILITIES,
+            uiResources: [],
+            uiLinkedTools: [],
+            validatedResources: []
+        } )
+
+        const uiv081 = messages
+            .filter( ( m ) => m.includes( 'UIV-081' ) )
+
+        expect( uiv081 ).toHaveLength( 0 )
+    } )
+
+
+    test( 'returns messages array alongside categories', () => {
+        const result = CapabilityClassifier.classify( {
+            capabilities: MOCK_CAPABILITIES,
+            uiResources: [],
+            uiLinkedTools: [],
+            validatedResources: []
+        } )
+
+        expect( result ).toHaveProperty( 'categories' )
+        expect( result ).toHaveProperty( 'messages' )
+        expect( Array.isArray( result['messages'] ) ).toBe( true )
     } )
 } )

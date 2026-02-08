@@ -2,7 +2,20 @@ class CapabilityClassifier {
 
 
     static classify( { capabilities, uiResources, uiLinkedTools, validatedResources } ) {
+        const messages = []
+
         const { detected: supportsMcpApps } = CapabilityClassifier.#detectExtension( { capabilities } )
+
+        if( !supportsMcpApps ) {
+            messages.push( 'UIV-080 capabilities: MCP Apps extension not declared (missing io.modelcontextprotocol/ui)' )
+        }
+
+        const { extensionVersion } = CapabilityClassifier.#extractExtensionVersion( { capabilities } )
+
+        if( supportsMcpApps && !extensionVersion ) {
+            messages.push( 'UIV-081 capabilities: Extension version not specified' )
+        }
+
         const { hasItems: hasUiResources } = CapabilityClassifier.#hasNonEmpty( { items: uiResources } )
         const { hasItems: hasUiToolLinkage } = CapabilityClassifier.#hasNonEmpty( { items: uiLinkedTools } )
 
@@ -27,7 +40,7 @@ class CapabilityClassifier {
             hasGracefulDegradation
         }
 
-        return { categories }
+        return { categories, messages }
     }
 
 
@@ -40,6 +53,23 @@ class CapabilityClassifier {
         const detected = uiExt !== undefined && uiExt !== null
 
         return { detected }
+    }
+
+
+    static #extractExtensionVersion( { capabilities } ) {
+        if( !capabilities || typeof capabilities !== 'object' ) {
+            return { extensionVersion: null }
+        }
+
+        const uiExt = capabilities['io.modelcontextprotocol/ui']
+
+        if( !uiExt || typeof uiExt !== 'object' ) {
+            return { extensionVersion: null }
+        }
+
+        const extensionVersion = uiExt['version'] || null
+
+        return { extensionVersion }
     }
 
 

@@ -36,6 +36,7 @@ class UiResourceValidator {
         await UiResourceValidator.#processResources( { client, uiResources, messages, validatedResources } )
 
         UiResourceValidator.#validateToolLinkage( { uiLinkedTools, uiResources, messages } )
+        UiResourceValidator.#validateToolUiMeta( { tools, messages } )
 
         return { messages, validatedResources }
     }
@@ -112,7 +113,7 @@ class UiResourceValidator {
         const hasBodyTag = lowerContent.includes( '<body' )
 
         if( !hasDoctype && !hasHtmlTag && !hasBodyTag ) {
-            messages.push( `UIV-011 ${uri}: HTML content appears invalid (missing doctype, html, or body tag)` )
+            messages.push( `UIV-013 ${uri}: HTML content appears invalid (missing doctype, html, or body tag)` )
         }
     }
 
@@ -177,10 +178,19 @@ class UiResourceValidator {
 
     static #validateDisplayMode( { uri, uiMeta, messages, validated } ) {
         if( !uiMeta || !uiMeta['displayModes'] ) {
+            messages.push( `UIV-041 ${uri}: No display modes declared` )
+
             return
         }
 
         const displayModes = uiMeta['displayModes']
+
+        if( !Array.isArray( displayModes ) || displayModes.length === 0 ) {
+            messages.push( `UIV-041 ${uri}: No display modes declared` )
+
+            return
+        }
+
         validated['displayModes'] = displayModes
 
         const unknownModes = displayModes
@@ -231,6 +241,12 @@ class UiResourceValidator {
 
 
     static #validateToolLinkage( { uiLinkedTools, uiResources, messages } ) {
+        if( uiLinkedTools.length === 0 ) {
+            messages.push( 'UIV-062 tools: No tools linked to UI resources' )
+
+            return
+        }
+
         const uiUris = uiResources
             .map( ( r ) => r['uri'] )
 
@@ -249,6 +265,25 @@ class UiResourceValidator {
                     if( invalidVisibility.length > 0 ) {
                         messages.push( `UIV-061 tool ${name}: Invalid visibility values: ${invalidVisibility.join( ', ' )}` )
                     }
+                }
+            } )
+    }
+
+
+    static #validateToolUiMeta( { tools, messages } ) {
+        tools
+            .forEach( ( tool ) => {
+                const { name } = tool
+                const meta = tool['_meta']
+
+                if( !meta ) { return }
+
+                const ui = meta['ui']
+
+                if( !ui ) { return }
+
+                if( ui['resourceUri'] === undefined || ui['resourceUri'] === null ) {
+                    messages.push( `UIV-063 ${name}: Has UI metadata but no resourceUri` )
                 }
             } )
     }
