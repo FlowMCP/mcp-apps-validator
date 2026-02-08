@@ -196,6 +196,73 @@ console.log( `UI resources removed: ${diff['uiResources']['removed'].length}` )
 | latency | object | `listResources` and `readResource` in milliseconds |
 | timestamp | string | ISO 8601 timestamp of validation |
 
+## Validation Codes
+
+### VAL — Input Validation
+
+| Code | Severity | Description |
+|------|----------|-------------|
+| VAL-001 | ERROR | endpoint: Missing value |
+| VAL-002 | ERROR | endpoint: Must be a string |
+| VAL-003 | ERROR | endpoint: Must not be empty |
+| VAL-004 | ERROR | endpoint: Must be a valid URL |
+| VAL-005 | ERROR | timeout: Must be a number |
+| VAL-006 | ERROR | timeout: Must be greater than 0 |
+| VAL-010 | ERROR | before: Missing value |
+| VAL-011 | ERROR | before: Must be an object |
+| VAL-012 | ERROR | before: Missing categories or entries |
+| VAL-013 | ERROR | after: Missing value |
+| VAL-014 | ERROR | after: Must be an object |
+| VAL-015 | ERROR | after: Missing categories or entries |
+
+### CON — MCP Connection
+
+| Code | Severity | Description |
+|------|----------|-------------|
+| CON-001 | ERROR | endpoint: Server is not reachable |
+| CON-004 | ERROR | mcp: Initialize handshake failed |
+| CON-008 | WARNING | tools/list: Request failed or invalid response format |
+| CON-010 | WARNING | resources/list: Request failed |
+
+### UIR — UI Resource Access
+
+| Code | Severity | Description |
+|------|----------|-------------|
+| UIR-001 | WARNING | resources/read: Resource read failed |
+| UIR-002 | WARNING | resources/read: Expected text/html content |
+
+### UIV — UI Validation
+
+| Code | Severity | Description |
+|------|----------|-------------|
+| UIV-010 | WARNING | HTML content is missing |
+| UIV-011 | WARNING | HTML content is not a string |
+| UIV-012 | WARNING | HTML content is empty |
+| UIV-013 | WARNING | HTML content appears invalid |
+| UIV-020 | WARNING | No CSP configuration declared |
+| UIV-021 | WARNING | CSP domain should use https:// or wss:// |
+| UIV-022 | WARNING | CSP contains wildcard domain |
+| UIV-030 | WARNING | Unknown permissions declared |
+| UIV-031 | WARNING | Sensitive permissions requested |
+| UIV-040 | INFO | Unknown display modes |
+| UIV-041 | INFO | No display modes declared |
+| UIV-050 | INFO | No theming acknowledgment found |
+| UIV-060 | WARNING | Tool references non-existent UI resource |
+| UIV-061 | WARNING | Tool has invalid visibility values |
+| UIV-062 | INFO | No tools linked to UI resources |
+| UIV-063 | INFO | Tool has UI metadata but no resourceUri |
+| UIV-070 | INFO | No graceful degradation found |
+| UIV-080 | INFO | MCP Apps extension not declared |
+| UIV-081 | INFO | Extension version not specified |
+
+### CMP — Comparison
+
+| Code | Severity | Description |
+|------|----------|-------------|
+| CMP-001 | WARNING | Snapshots are from different servers |
+| CMP-002 | WARNING | Before snapshot has no timestamp |
+| CMP-003 | WARNING | After snapshot is older than before |
+
 ## License
 
 MIT
